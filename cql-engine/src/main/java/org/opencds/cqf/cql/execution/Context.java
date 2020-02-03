@@ -4,6 +4,9 @@ import org.cqframework.cql.elm.execution.*;
 import org.opencds.cqf.cql.data.DataProvider;
 import org.opencds.cqf.cql.data.ExternalFunctionProvider;
 import org.opencds.cqf.cql.data.SystemDataProvider;
+import org.opencds.cqf.cql.debug.DebugMap;
+import org.opencds.cqf.cql.debug.DebugResult;
+import org.opencds.cqf.cql.elm.execution.Executable;
 import org.opencds.cqf.cql.exception.CqlException;
 import org.opencds.cqf.cql.runtime.Precision;
 import org.opencds.cqf.cql.runtime.TemporalHelper;
@@ -51,6 +54,39 @@ public class Context {
 
     private org.opencds.cqf.cql.runtime.DateTime evaluationDateTime =
             new org.opencds.cqf.cql.runtime.DateTime(OffsetDateTime.now().withOffsetSameInstant(TemporalHelper.getDefaultZoneOffset()), Precision.MILLISECOND);
+
+    private DebugMap debugMap;
+    public DebugMap getDebugMap() {
+        return this.debugMap;
+    }
+
+    public void setDebugMap(DebugMap debugMap) {
+        this.debugMap = debugMap;
+    }
+
+    private DebugResult debugResult;
+    public DebugResult getDebugResult() {
+        return this.debugResult;
+    }
+
+    public boolean shouldDebug(Executable node) {
+        if (this.debugMap == null) {
+            return false;
+        }
+
+        return debugMap.shouldDebug(node, this.getCurrentLibrary());
+    }
+
+    private void ensureDebugResult() {
+        if (this.debugResult == null) {
+            debugResult = new DebugResult();
+        }
+    }
+
+    public void logDebugResult(Executable node, Object result) {
+        ensureDebugResult();
+        debugResult.logDebugResult(node, this.getCurrentLibrary(), result);
+    }
 
     public Context(Library library) {
         init(library);

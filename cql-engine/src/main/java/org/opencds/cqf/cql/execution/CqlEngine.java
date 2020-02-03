@@ -6,6 +6,7 @@ import org.cqframework.cql.elm.execution.Library;
 import org.cqframework.cql.elm.execution.UsingDef;
 import org.cqframework.cql.elm.execution.VersionedIdentifier;
 import org.opencds.cqf.cql.data.DataProvider;
+import org.opencds.cqf.cql.debug.DebugMap;
 import org.opencds.cqf.cql.terminology.TerminologyProvider;
 
 import java.util.Arrays;
@@ -86,15 +87,20 @@ public class CqlEngine {
         return this.evaluate(contextParameters, parameters, expressions);
     }
 
-
     public EvaluationResult evaluate(Map<String, Object> contextParameters, Map<VersionedIdentifier, Map<String, Object>> parameters, Map<VersionedIdentifier, Set<String>> expressions)
     {
         Map<VersionedIdentifier, Library> libraries = this.loadLibraries(expressions.keySet());
-        return this.evaluate(contextParameters, parameters, expressions, libraries);
+        return this.evaluate(contextParameters, parameters, expressions, libraries, null);
 
     }
 
-    private EvaluationResult evaluate(Map<String, Object> contextParameters, Map<VersionedIdentifier, Map<String, Object>> parameters, Map<VersionedIdentifier, Set<String>> expressions, Map<VersionedIdentifier, Library> libraries) {
+    public EvaluationResult evaluate(Map<String, Object> contextParameters, Map<VersionedIdentifier, Map<String, Object>> parameters, Map<VersionedIdentifier, Set<String>> expressions, DebugMap debugMap)
+    {
+        Map<VersionedIdentifier, Library> libraries = this.loadLibraries(expressions.keySet());
+        return this.evaluate(contextParameters, parameters, expressions, libraries, debugMap);
+    }
+
+    private EvaluationResult evaluate(Map<String, Object> contextParameters, Map<VersionedIdentifier, Map<String, Object>> parameters, Map<VersionedIdentifier, Set<String>> expressions, Map<VersionedIdentifier, Library> libraries, DebugMap debugMap) {
         EvaluationResult evaluationResult = new EvaluationResult();
 
         for (Map.Entry<VersionedIdentifier, Set<String>> entry : expressions.entrySet()) {
@@ -106,12 +112,14 @@ public class CqlEngine {
 
             Library library = libraries.get(entry.getKey());
 
-            Context context = this.setupContext(contextParameters, parameters, library);
+            Context context = this.setupContext(contextParameters, parameters, library, debugMap);
 
             LibraryResult result = this.evaluateLibrary(context, library, entry.getValue());
+            result.setDebugResult(context.getDebugResult());
 
             evaluationResult.libraryResults.put(entry.getKey(), result);
         }
+
 
         return evaluationResult;
     }
@@ -139,11 +147,12 @@ public class CqlEngine {
     }
 
     // TODO: Handle global parameters?
-    private Context setupContext(Map<String, Object> contextParameters, Map<VersionedIdentifier, Map<String, Object>> parameters, Library library) {
+    private Context setupContext(Map<String, Object> contextParameters, Map<VersionedIdentifier, Map<String, Object>> parameters, Library library, DebugMap debugMap) {
         
         // Context requires an initial library to init properly.
         // TODO: Allow context to be initialized with multiple libraries
         Context context = new Context(library);
+        context.setDebugMap(debugMap);
 
         // TODO: Does the context actually need a library loaded if all the libraries are prefetched?
         // We'd have to make sure we include the dependencies too.

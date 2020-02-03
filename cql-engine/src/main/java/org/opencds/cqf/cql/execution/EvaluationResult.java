@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.cqframework.cql.elm.execution.VersionedIdentifier;
+import org.opencds.cqf.cql.debug.DebugResult;
 
 public class EvaluationResult {
 

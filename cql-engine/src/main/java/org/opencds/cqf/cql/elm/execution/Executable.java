@@ -1,6 +1,7 @@
 package org.opencds.cqf.cql.elm.execution;
 
 import org.apache.commons.lang3.NotImplementedException;
+import org.cqframework.cql.elm.execution.Element;
 import org.opencds.cqf.cql.exception.CqlException;
 import org.opencds.cqf.cql.exception.CqlExceptionHandler;
 import org.opencds.cqf.cql.execution.Context;
@@ -12,7 +13,11 @@ public class Executable
     public Object evaluate(Context context) throws CqlException
     {
         try {
-            return internalEvaluate(context);
+            Object result = internalEvaluate(context);
+            if (context.shouldDebug(this)) {
+                context.logDebugResult(this, result);
+            }
+            return result;
         }
         catch (Exception e) {
             if (e instanceof CqlException) {
