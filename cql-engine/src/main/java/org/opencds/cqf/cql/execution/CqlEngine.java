@@ -1,5 +1,11 @@
 package org.opencds.cqf.cql.execution;
 
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.cqframework.cql.elm.execution.ExpressionDef;
 import org.cqframework.cql.elm.execution.FunctionDef;
 import org.cqframework.cql.elm.execution.Library;
@@ -8,15 +14,6 @@ import org.cqframework.cql.elm.execution.VersionedIdentifier;
 import org.opencds.cqf.cql.data.DataProvider;
 import org.opencds.cqf.cql.debug.DebugMap;
 import org.opencds.cqf.cql.terminology.TerminologyProvider;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * NOTE: Several possible approaches to traversing the ELM tree for execution:
@@ -94,13 +91,13 @@ public class CqlEngine {
 
     }
 
-    public EvaluationResult evaluate(Map<String, Object> contextParameters, Map<VersionedIdentifier, Map<String, Object>> parameters, Map<VersionedIdentifier, Set<String>> expressions, DebugMap debugMap)
+    public EvaluationResult evaluate(Map<String, Object> contextParameters, Map<VersionedIdentifier, Map<String, Object>> parameters, Map<VersionedIdentifier, Set<String>> expressions, Map<VersionedIdentifier, DebugMap> debugMaps)
     {
         Map<VersionedIdentifier, Library> libraries = this.loadLibraries(expressions.keySet());
-        return this.evaluate(contextParameters, parameters, expressions, libraries, debugMap);
+        return this.evaluate(contextParameters, parameters, expressions, libraries, debugMaps);
     }
 
-    private EvaluationResult evaluate(Map<String, Object> contextParameters, Map<VersionedIdentifier, Map<String, Object>> parameters, Map<VersionedIdentifier, Set<String>> expressions, Map<VersionedIdentifier, Library> libraries, DebugMap debugMap) {
+    private EvaluationResult evaluate(Map<String, Object> contextParameters, Map<VersionedIdentifier, Map<String, Object>> parameters, Map<VersionedIdentifier, Set<String>> expressions, Map<VersionedIdentifier, Library> libraries, Map<VersionedIdentifier, DebugMap> debugMaps) {
         EvaluationResult evaluationResult = new EvaluationResult();
 
         for (Map.Entry<VersionedIdentifier, Set<String>> entry : expressions.entrySet()) {
@@ -111,6 +108,11 @@ public class CqlEngine {
             }
 
             Library library = libraries.get(entry.getKey());
+
+            DebugMap debugMap = null;
+            if (debugMaps != null) {
+                debugMap = debugMaps.get(entry.getKey());
+            } 
 
             Context context = this.setupContext(contextParameters, parameters, library, debugMap);
 
