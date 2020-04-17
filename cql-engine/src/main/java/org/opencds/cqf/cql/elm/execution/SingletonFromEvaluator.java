@@ -1,5 +1,6 @@
 package org.opencds.cqf.cql.elm.execution;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.opencds.cqf.cql.exception.InvalidOperatorArgument;
 import org.opencds.cqf.cql.execution.Context;
 

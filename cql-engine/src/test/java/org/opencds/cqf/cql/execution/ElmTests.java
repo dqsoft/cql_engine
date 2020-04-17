@@ -1,10 +1,13 @@
 package org.opencds.cqf.cql.execution;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.cqframework.cql.elm.execution.Library;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -39,6 +42,17 @@ public class ElmTests {
         try {
             CqlLibraryReader.read(ElmTests.class.getResourceAsStream("CMS53Draft/PrimaryPCIReceivedWithin90MinutesofHospitalArrival-7.0.001.xml"));
         } catch (IOException | JAXBException e) {
+            throw new IllegalArgumentException("Error reading ELM: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void TestJsonLibraryLoad() {
+        try {
+            Library library = JsonCqlLibraryReader.read(new InputStreamReader(ElmTests.class.getResourceAsStream("ANCFHIRDummy.json")));
+            Assert.assertTrue(library != null);
+        }
+        catch (IOException e) {
             throw new IllegalArgumentException("Error reading ELM: " + e.getMessage());
         }
     }

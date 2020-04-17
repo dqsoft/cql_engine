@@ -3,6 +3,7 @@ package org.opencds.cqf.cql.elm.execution;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.cqframework.cql.elm.execution.ValueSetDef;
 import org.cqframework.cql.elm.execution.ValueSetRef;
 import org.opencds.cqf.cql.data.DataProvider;
